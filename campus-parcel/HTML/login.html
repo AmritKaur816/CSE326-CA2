@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - Campus Parcel Management</title>
+  <link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+  <main class="login-wrap">
+    <section class="login-card">
+      <div class="login-top">
+        <h1>Campus Parcel Management</h1>
+        <p>Sign in with your ID and password</p>
+      </div>
+
+      <form class="login-form" id="loginForm" novalidate>
+        <p class="form-error" id="loginError" hidden></p>
+
+        <label for="loginId">University Registration ID / Staff ID
+          <input type="text" id="loginId" autocomplete="username">
+        </label>
+
+        <label for="loginPassword">Password
+          <span class="pass-row">
+            <input type="password" id="loginPassword" autocomplete="current-password">
+            <button type="button" id="togglePassword">Show</button>
+          </span>
+        </label>
+
+        <button type="submit" class="btn btn-primary">Log In</button>
+      </form>
+
+      <div class="demo-box">
+        <strong>Demo credentials (not real accounts)</strong>
+        <table>
+          <tr><th>Role</th><th>ID</th><th>Password</th></tr>
+          <tr><td>Student</td><td>12345678</td><td>student123</td></tr>
+          <tr><td>UniMall Operator</td><td>UNIMALL01</td><td>unimall123</td></tr>
+          <tr><td>Security Guard</td><td>GUARD01</td><td>guard123</td></tr>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../JS/data.js"></script>
+  <script src="../JS/auth.js"></script>
+  <script src="../JS/login.js"></script>
+</body>
+</html>

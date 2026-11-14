@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" data-role="student">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Student Dashboard - Campus Parcel Management</title>
+  <link rel="stylesheet" href="../CSS/style.css">
+  <!-- Runs first: sends visitors who are not logged in (or have another role) to the login page -->
+  <script src="../JS/data.js"></script>
+  <script src="../JS/auth.js"></script>
+  <script>requireLogin(document.documentElement.getAttribute("data-role"));</script>
+</head>
+<body>
+  <header class="navbar">
+    <div class="brand">Campus Parcels</div>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#" data-section="overview">Overview</a>
+      <a href="#" data-section="my-parcels">My UniMall Parcels</a>
+      <a href="#" data-section="register-quick">Register Quick Delivery</a>
+      <a href="#" data-section="my-quick">My Quick Deliveries</a>
+      <a href="#" data-section="history">Delivery History</a>
+    </nav>
+    <div class="nav-right">
+      <button type="button" class="bell" aria-label="Notifications" title="Notifications"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="badge" id="notifCount">0</span></button>
+      <div id="profileMount"></div>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="section" id="overview">
+      <div class="card">
+        <h1>Welcome, <span data-profile="name"></span></h1>
+        <p>Your details below update instantly when you edit your profile.</p>
+        <div class="info-grid">
+          <div><span>Registration ID</span><strong data-profile="id"></strong></div>
+          <div><span>Hostel</span><strong data-profile="hostel"></strong></div>
+          <div><span>Block</span><strong data-profile="block"></strong></div>
+          <div><span>Room</span><strong data-profile="room"></strong></div>
+          <div><span>Phone</span><strong data-profile="phone"></strong></div>
+          <div><span>Email</span><strong data-profile="email"></strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="my-parcels" hidden>
+      <div class="card placeholder">
+        <h2>My UniMall Parcels</h2>
+        <p>Your UniMall e-commerce parcels will be listed here.</p>
+      </div>
+    </section>
+    <section class="section" id="register-quick" hidden>
+      <div class="card placeholder">
+        <h2>Register Quick Delivery</h2>
+        <p>The quick-delivery registration form will go here.</p>
+      </div>
+    </section>
+    <section class="section" id="my-quick" hidden>
+      <div class="card placeholder">
+        <h2>My Quick Deliveries</h2>
+        <p>Your registered quick deliveries will be listed here.</p>
+      </div>
+    </section>
+    <section class="section" id="history" hidden>
+      <div class="card placeholder">
+        <h2>Delivery History</h2>
+        <p>Your past deliveries will be listed here.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="../JS/profile.js"></script>
+  <script src="../JS/dashboard.js"></script>
+  <script src="../JS/parcels.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" data-role="operator">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UniMall Operator Dashboard - Campus Parcel Management</title>
+  <link rel="stylesheet" href="../CSS/style.css">
+  <!-- Runs first: sends visitors who are not logged in (or have another role) to the login page -->
+  <script src="../JS/data.js"></script>
+  <script src="../JS/auth.js"></script>
+  <script>requireLogin(document.documentElement.getAttribute("data-role"));</script>
+</head>
+<body>
+  <header class="navbar">
+    <div class="brand">Campus Parcels</div>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#" data-section="overview">Overview</a>
+      <a href="#" data-section="register-parcel">Register E-commerce Parcel</a>
+      <a href="#" data-section="parcel-board">E-commerce Parcel Board</a>
+      <a href="#" data-section="verify">Verify Collection</a>
+    </nav>
+    <div class="nav-right">
+      
+      <div id="profileMount"></div>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="section" id="overview">
+      <div class="card">
+        <h1>Welcome, <span data-profile="name"></span></h1>
+        <p>Manage e-commerce parcels received at UniMall.</p>
+        <div class="info-grid">
+          <div><span>Staff ID</span><strong data-profile="id"></strong></div>
+          
+          <div><span>Phone</span><strong data-profile="phone"></strong></div>
+          <div><span>Email</span><strong data-profile="email"></strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="register-parcel" hidden>
+      <div class="card placeholder">
+        <h2>Register E-commerce Parcel</h2>
+        <p>The parcel registration form will go here.</p>
+      </div>
+    </section>
+    <section class="section" id="parcel-board" hidden>
+      <div class="card placeholder">
+        <h2>E-commerce Parcel Board</h2>
+        <p>All e-commerce parcels will be shown here.</p>
+      </div>
+    </section>
+    <section class="section" id="verify" hidden>
+      <div class="card placeholder">
+        <h2>Verify Collection</h2>
+        <p>The collection verification form will go here.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="../JS/profile.js"></script>
+  <script src="../JS/dashboard.js"></script>
+  <script src="../JS/parcels.js"></script>
+</body>
+</html>
