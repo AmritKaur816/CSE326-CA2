@@ -40,6 +40,88 @@
     return day + " " + m + " " + y + ", " + (hours < 10 ? "0" + hours : hours) + ":" + mins + " " + ampm;
   }
 
+  // Helper formatting for timeline dates (matches "Nov 14 · 10:00 AM" reference style)
+  function formatTimelineTime(str) {
+    if (!str) return "";
+    var match = str.match(/(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4}),\s+(\d{1,2}:\d{2}\s+[AP]M)/i);
+    if (match) {
+      var day = match[1];
+      var month = match[2];
+      var time = match[4].replace(/^0/, '');
+      return month + " " + day + " · " + time;
+    }
+    try {
+      var d = new Date(str);
+      if (!isNaN(d.getTime())) {
+        var months = ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"];
+        var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var h = d.getHours();
+        var m = d.getMinutes();
+        var ampm = h >= 12 ? "PM" : "AM";
+        h = h % 12;
+        h = h ? h : 12;
+        var mStr = m < 10 ? "0" + m : m;
+        return monthNames[d.getMonth()] + " " + d.getDate() + " · " + h + ":" + mStr + " " + ampm;
+      }
+    } catch (e) {}
+    return str;
+  }
+
+  // Timeline stage circular icons (matching the reference design)
+  var ICON_TIMELINE_COMPLETED =
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none">' +
+      '<circle cx="12" cy="12" r="10" stroke="#10b981" stroke-width="2.2" fill="none" />' +
+      '<path d="M7.5 12l3 3 6.5-6.5" stroke="#10b981" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />' +
+    '</svg>';
+
+  var ICON_TIMELINE_CURRENT =
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none">' +
+      '<circle cx="12" cy="12" r="10" stroke="#e67e22" stroke-width="2.2" fill="none" />' +
+      '<polyline points="12 6.5 12 12 15.5 12" stroke="#e67e22" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />' +
+    '</svg>';
+
+  var ICON_TIMELINE_PENDING =
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none">' +
+      '<circle cx="12" cy="12" r="9" fill="#9e9e9e" />' +
+    '</svg>';
+
+  function renderTimelineStage(title, subtitle, state, isLast) {
+    var icon = "";
+    var headingClass = "";
+    var subtextClass = "";
+    var connectorClass = "";
+
+    if (state === "completed") {
+      icon = ICON_TIMELINE_COMPLETED;
+      headingClass = "heading-completed";
+      subtextClass = "subtext-completed";
+      connectorClass = "connector-completed";
+    } else if (state === "current") {
+      icon = ICON_TIMELINE_CURRENT;
+      headingClass = "heading-current";
+      subtextClass = "subtext-current";
+      connectorClass = "";
+    } else {
+      icon = ICON_TIMELINE_PENDING;
+      headingClass = "heading-pending";
+      subtextClass = "subtext-pending";
+      connectorClass = "";
+    }
+
+    return (
+      '<div class="timeline-step">' +
+        '<div class="timeline-col-left">' +
+          '<div class="timeline-node">' + icon + '</div>' +
+          (!isLast ? '<div class="timeline-connector ' + connectorClass + '"></div>' : '') +
+        '</div>' +
+        '<div class="timeline-col-right">' +
+          '<div class="timeline-heading ' + headingClass + '">' + title + '</div>' +
+          '<div class="timeline-subtext ' + subtextClass + '">' + (subtitle || 'Pending') + '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
   // -------------------------------------------------------------
   // NOTIFICATIONS (Bell icon)
   // -------------------------------------------------------------
@@ -145,12 +227,160 @@
     setupNotifications();
   }
 
+  // -------------------------------------------------------------
+  // RENDER ACTIVE PARCELS & VERTICAL JOURNEY TIMELINE
+  // -------------------------------------------------------------
+  function renderActiveParcelsSection() {
+    var allParcels = getParcels().filter(function (p) { return p.studentId === currentUserId; });
+    var allQuick = getQuickDeliveries().filter(function (q) { return q.studentId === currentUserId; });
+
+    // Filter only active parcels (status is NOT 'Collected')
+    var activeParcels = allParcels.filter(function (p) { return p.status !== "Collected"; });
+    var activeQuick = allQuick.filter(function (q) { return q.status !== "Collected"; });
+    var totalActive = activeParcels.length + activeQuick.length;
+
+    var html =
+      '<div class="active-parcels-section">' +
+        '<div class="active-parcels-header">' +
+          '<h2>Your Active Parcels <span class="active-parcels-badge">' + totalActive + '</span></h2>' +
+          '<span class="active-parcels-subtitle">Live Journey & Tracking Timelines</span>' +
+        '</div>';
+
+    if (totalActive === 0) {
+      html +=
+        '<div class="empty-active-parcels">' +
+          '<p style="color: var(--grey); font-size: 1.05rem; margin: 0; font-weight: 600;">You have no active parcels right now.</p>' +
+          '<p style="color: var(--grey); font-size: 0.88rem; margin: 0.4rem 0 0 0;">All your past orders have been safely collected.</p>' +
+        '</div>' +
+      '</div>';
+      return html;
+    }
+
+    // 1. Regular E-Commerce Parcels (Amazon, Flipkart, Myntra, etc.)
+    activeParcels.forEach(function (p) {
+      var carrierCls = "carrier-" + (p.carrier || "other").toLowerCase().replace(/[^a-z0-9]/g, "");
+      var stage1Time = formatTimelineTime(p.receivedDate || p.arrivedDate);
+      var stage2Time = formatTimelineTime(p.arrivedDate);
+      var isReady = p.status === "Ready for Pickup";
+
+      // Stages in order:
+      // 1. Parcel Received (completed)
+      // 2. Registered by Operator (completed)
+      // 3. Ready for Pickup (current highlighted in orange)
+      // 4. Collected (pending)
+      var timelineHtml =
+        renderTimelineStage("Parcel Received", stage1Time, "completed", false) +
+        renderTimelineStage("Registered by Operator", stage2Time, "completed", false) +
+        renderTimelineStage("Ready for Pickup", (isReady ? "Waiting for student collection" : "Pending"), (isReady ? "current" : "pending"), false) +
+        renderTimelineStage("Collected", "Pending", "pending", true);
+
+      html +=
+        '<div class="parcel-journey-card">' +
+          '<div class="parcel-card-top">' +
+            '<div class="parcel-card-identity">' +
+              '<span class="carrier-badge ' + carrierCls + '">' + p.carrier + '</span>' +
+              '<span class="tracking-text">Tracking: <strong class="tracking-val">' + p.trackingNumber + '</strong></span>' +
+            '</div>' +
+            '<div>' + getStatusBadge(p.status) + '</div>' +
+          '</div>' +
+          '<div class="parcel-meta-strip">' +
+            '<div class="meta-item">' +
+              '<span class="meta-label">Package Contents</span>' +
+              '<span class="meta-val">' + p.description + '</span>' +
+            '</div>' +
+            '<div class="meta-item">' +
+              '<span class="meta-label">Shelf / Locker Location</span>' +
+              '<span class="meta-val" style="color: var(--emerald-dark);">' + p.shelf + '</span>' +
+            '</div>' +
+            '<div class="meta-item">' +
+              '<span class="meta-label">Pickup OTP (Show to Operator)</span>' +
+              '<div class="pickup-highlight">' +
+                '<span class="parcel-otp-pill">' + p.pickupCode + '</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="timeline-wrapper">' +
+            '<div class="parcel-journey-heading">Your Parcel Journey</div>' +
+            '<div class="timeline-container">' +
+              timelineHtml +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    });
+
+    // 2. Quick-Commerce Deliveries (Blinkit, Zepto, Swiggy, etc.)
+    activeQuick.forEach(function (q) {
+      var vendorCls = "carrier-" + (q.vendor || "other").toLowerCase().replace(/[^a-z0-9]/g, "");
+      var qRegTime = formatTimelineTime(q.requestedAt);
+      var qArrTime = q.arrivedAtGate ? formatTimelineTime(q.arrivedAtGate) : "";
+
+      var isOnWay = q.status === "On the way";
+
+      // Stages in order:
+      // 1. Delivery Registered
+      // 2. Delivery Arrived at Campus
+      // 3. Ready for Pickup
+      // 4. Collected
+      var timelineHtml = "";
+      if (isOnWay) {
+        timelineHtml =
+          renderTimelineStage("Delivery Registered", qRegTime, "completed", false) +
+          renderTimelineStage("Delivery Arrived at Campus", "Rider on the way · " + q.riderName + " (" + (q.riderVehicle || 'Vehicle') + ")", "current", false) +
+          renderTimelineStage("Ready for Pickup", "Gate clearance & token verification pending", "pending", false) +
+          renderTimelineStage("Collected", "Pending", "pending", true);
+      } else {
+        // Arrived at gate / Ready for pickup
+        timelineHtml =
+          renderTimelineStage("Delivery Registered", qRegTime, "completed", false) +
+          renderTimelineStage("Delivery Arrived at Campus", (qArrTime || qRegTime), "completed", false) +
+          renderTimelineStage("Ready for Pickup", "Waiting for student collection · " + q.gate, "current", false) +
+          renderTimelineStage("Collected", "Pending", "pending", true);
+      }
+
+      html +=
+        '<div class="parcel-journey-card">' +
+          '<div class="parcel-card-top">' +
+            '<div class="parcel-card-identity">' +
+              '<span class="carrier-badge ' + vendorCls + '">' + q.vendor + '</span>' +
+              '<span class="tracking-text">Order Ref: <strong class="tracking-val">' + q.orderRef + '</strong></span>' +
+            '</div>' +
+            '<div>' + getStatusBadge(q.status) + '</div>' +
+          '</div>' +
+          '<div class="parcel-meta-strip">' +
+            '<div class="meta-item">' +
+              '<span class="meta-label">Delivery Items</span>' +
+              '<span class="meta-val">' + q.items + '</span>' +
+            '</div>' +
+            '<div class="meta-item">' +
+              '<span class="meta-label">Designated Gate & Rider</span>' +
+              '<span class="meta-val">' + q.gate + ' &bull; ' + q.riderName + '</span>' +
+            '</div>' +
+            '<div class="meta-item">' +
+              '<span class="meta-label">Gate Pass Code (Token)</span>' +
+              '<div class="pickup-highlight">' +
+                '<span class="parcel-otp-pill">' + q.passCode + '</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="timeline-wrapper">' +
+            '<div class="parcel-journey-heading">Your Parcel Journey</div>' +
+            '<div class="timeline-container">' +
+              timelineHtml +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    });
+
+    html += '</div>';
+    return html;
+  }
+
   function renderStudentOverview() {
     var allParcels = getParcels().filter(function (p) { return p.studentId === currentUserId; });
     var allQuick = getQuickDeliveries().filter(function (q) { return q.studentId === currentUserId; });
 
     var readyParcels = allParcels.filter(function (p) { return p.status === "Ready for Pickup"; });
-    var atGateQuick = allQuick.filter(function (q) { return q.status === "At Main Gate"; });
+    var atGateQuick = allQuick.filter(function (q) { return q.status === "At Main Gate" || q.status === "Ready for Pickup"; });
     var onTheWayQuick = allQuick.filter(function (q) { return q.status === "On the way"; });
     var collectedTotal = allParcels.filter(function (p) { return p.status === "Collected"; }).length +
                          allQuick.filter(function (q) { return q.status === "Collected"; }).length;
@@ -196,7 +426,8 @@
           '<button type="button" class="btn btn-primary" style="background: var(--gold);" onclick="showSection(\'register-quick\')">+ Register Quick Delivery</button>' +
           '<button type="button" class="btn btn-ghost" onclick="showSection(\'my-quick\')">View Quick Deliveries (' + (atGateQuick.length + onTheWayQuick.length) + ')</button>' +
         '</div>' +
-      '</div>';
+      '</div>' +
+      renderActiveParcelsSection();
 
     var rBtn = document.getElementById("resetDemoBtn");
     if (rBtn) {
@@ -671,6 +902,7 @@
         trackingNumber: tracking,
         description: desc,
         shelf: shelf,
+        receivedDate: getCurrentFormattedTime(),
         arrivedDate: getCurrentFormattedTime(),
         pickupCode: randomOtp,
         status: "Ready for Pickup",
@@ -1198,6 +1430,34 @@
       initOperatorDashboard();
     } else if (role === "guard") {
       initGuardDashboard();
+    }
+  });
+
+  // Live update whenever storage changes (e.g. Operator/Guard updates in another tab)
+  window.addEventListener("storage", function (e) {
+    if (e.key === "campusParcels" || e.key === "campusQuickDelivs" || e.key === "campusProfiles") {
+      if (role === "student") {
+        renderStudentOverview();
+        renderStudentUniMallParcels();
+        renderStudentQuickDeliveries();
+        renderStudentHistory();
+        setupNotifications();
+      } else if (role === "operator") {
+        renderOperatorOverview();
+        renderOperatorParcelBoard();
+      } else if (role === "guard") {
+        renderGuardOverview();
+        renderGuardNotifications();
+        renderGuardRecords();
+        setupNotifications();
+      }
+    }
+  });
+
+  // Re-render when switching back to overview tab
+  window.addEventListener("sectionChanged", function (e) {
+    if (role === "student" && e.detail && e.detail.section === "overview") {
+      renderStudentOverview();
     }
   });
 

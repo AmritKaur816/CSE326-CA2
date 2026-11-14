@@ -23,6 +23,9 @@ function showSection(name) {
       links[j].removeAttribute("aria-current");
     }
   }
+  try {
+    window.dispatchEvent(new CustomEvent("sectionChanged", { detail: { section: name } }));
+  } catch (e) {}
 }
 window.showSection = showSection;
 

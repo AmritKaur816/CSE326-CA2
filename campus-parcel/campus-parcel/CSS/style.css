@@ -363,3 +363,283 @@ input:disabled { background: #f4f2ea; color: #3a4640; border-color: var(--grey-l
   padding: 2.5rem 1.5rem;
   color: var(--grey);
 }
+
+
+/* ---------- Vertical Parcel Journey Timeline Component ---------- */
+.active-parcels-section {
+  margin-top: 1.75rem;
+}
+
+.active-parcels-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.15rem;
+}
+
+.active-parcels-header h2 {
+  font-size: 1.35rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.active-parcels-badge {
+  background: var(--gold);
+  color: var(--forest);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.active-parcels-subtitle {
+  font-size: 0.88rem;
+  color: var(--grey);
+}
+
+.parcel-journey-card {
+  background: var(--white);
+  border: 1px solid var(--grey-light);
+  border-radius: 14px;
+  padding: 1.4rem 1.6rem;
+  margin-bottom: 1.35rem;
+  box-shadow: 0 4px 14px rgba(15, 61, 46, 0.05);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.parcel-journey-card:hover {
+  border-color: #b3c5bb;
+  box-shadow: 0 6px 20px rgba(15, 61, 46, 0.08);
+}
+
+.parcel-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid #edebe1;
+  margin-bottom: 1rem;
+}
+
+.parcel-card-identity {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.carrier-badge {
+  display: inline-block;
+  background: var(--forest);
+  color: var(--cream);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+}
+
+.carrier-badge.carrier-blinkit,
+.carrier-badge.carrier-zepto,
+.carrier-badge.carrier-swiggy,
+.carrier-badge.carrier-zomato {
+  background: #946914;
+  color: var(--cream);
+}
+
+.tracking-text {
+  font-size: 0.92rem;
+  color: var(--grey);
+}
+
+.tracking-val {
+  color: var(--forest);
+  font-family: monospace;
+  font-size: 0.95rem;
+}
+
+.parcel-meta-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  background: var(--cream);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.meta-label {
+  font-size: 0.78rem;
+  color: var(--grey);
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.meta-val {
+  color: var(--forest);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.pickup-highlight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.parcel-otp-pill {
+  display: inline-block;
+  background: var(--forest);
+  color: var(--cream);
+  padding: 0.15rem 0.55rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Timeline Layout */
+.timeline-wrapper {
+  padding-top: 0.35rem;
+}
+
+.parcel-journey-heading {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.2rem;
+  color: var(--forest);
+  margin: 0 0 1.15rem 0;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  padding-left: 0.25rem;
+}
+
+.timeline-step {
+  display: flex;
+  position: relative;
+}
+
+.timeline-col-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 26px;
+  flex-shrink: 0;
+  margin-right: 14px;
+}
+
+.timeline-node {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.timeline-connector {
+  width: 2px;
+  flex-grow: 1;
+  min-height: 26px;
+  background: #e3e0d4;
+  margin: 4px 0;
+}
+
+.timeline-connector.connector-completed {
+  background: #0e7a53;
+}
+
+.timeline-step:last-child .timeline-connector {
+  display: none;
+}
+
+.timeline-col-right {
+  flex: 1;
+  padding-top: 1px;
+  padding-bottom: 1.35rem;
+}
+
+.timeline-step:last-child .timeline-col-right {
+  padding-bottom: 0.25rem;
+}
+
+.timeline-heading {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--forest);
+  line-height: 1.25;
+  margin-bottom: 2px;
+}
+
+.timeline-heading.heading-completed {
+  color: var(--forest);
+}
+
+.timeline-heading.heading-current {
+  color: #c86300;
+}
+
+.timeline-heading.heading-pending {
+  color: #7a857e;
+  font-weight: 600;
+}
+
+.timeline-subtext {
+  font-size: 0.88rem;
+  color: #5d6661;
+  line-height: 1.35;
+}
+
+.timeline-subtext.subtext-current {
+  color: #8f4b04;
+  font-weight: 500;
+}
+
+.timeline-subtext.subtext-pending {
+  color: #9aa39d;
+}
+
+/* Empty active parcels state */
+.empty-active-parcels {
+  text-align: center;
+  padding: 2.25rem 1.5rem;
+  background: var(--white);
+  border: 1px dashed var(--grey-light);
+  border-radius: 12px;
+}
+
+@media (max-width: 600px) {
+  .parcel-journey-card {
+    padding: 1.15rem 1.1rem;
+  }
+  .parcel-meta-strip {
+    grid-template-columns: 1fr;
+  }
+  .timeline-col-left {
+    margin-right: 10px;
+  }
+  .timeline-heading {
+    font-size: 0.98rem;
+  }
+}
